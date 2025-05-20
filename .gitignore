@@ -1,0 +1,35 @@
+# Python関連
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.env
+.env.*
+
+# VS Code などエディタの設定
+.vscode/
+.idea/
+
+# Docker関連
+*.pid
+*.sock
+*.db
+*.tar
+*.gz
+*.img
+*.bak
+
+# MySQLのデータフォルダ（永続化されるがGitには不要）
+mysql/data/
+
+# Docker Compose logs
+*.log
+
+# macOS
+.DS_Store
+
+# バックアップや一時ファイル
+*~
+*.swp
+*.tmp
