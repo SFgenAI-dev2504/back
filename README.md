@@ -65,12 +65,6 @@ Docker Compose version v2.10.2
 ※Gitクライアントについて、Forkを指定しているがSourceTreeなどでも可。  
 (自分の使いやすいものでOK)
 
-### 3. Node.jsのインストール
-
-以下のURLからNode.jsのv22.15.0をインストールする。
-
-* https://nodejs.org/ja/download
-
 ### 3. Pythonのインストール
 
 以下のURLからPythonの3.11.9をインストールする。(mock用)
