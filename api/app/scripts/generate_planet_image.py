@@ -14,14 +14,9 @@ import os
 from langchain_core.messages import HumanMessage
 import base64
 import httpx
+from dotenv import load_dotenv
+load_dotenv()
 
-#API keyの設定
-json_open = open('key.json', 'r')
-json_load = json.load(json_open)
-key = json_load['openai']['key']
-
-llm = ChatOpenAI(openai_api_key=key)
-client = OpenAI(api_key=key)
 
 #フロント側からの入力値をここで受け取る
 
@@ -50,7 +45,7 @@ def make_prompt(text):
           ("human", "{input}"),
       ]
       )
-  model = ChatOpenAI(model="gpt-4o", temperature=0.5)
+  model = ChatOpenAI(model="gpt-4o", temperature=0.5, openai_api_key=os.getenv(OPENAI_API_KEY))
 
   chain = prompt | model | StrOutputParser()
   prompt_img_gen = chain.invoke({"input": text})
