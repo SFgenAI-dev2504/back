@@ -31,9 +31,9 @@ class PromptCreatorService:
         model = ChatOpenAI(model="gpt-4o", temperature=0.5, api_key=api_key)
 
         chain = prompt | model | StrOutputParser()
-        return chain.invoke({"input": self.__create_all_prompt()})
+        return chain.invoke({"input": self.create_all_prompt()})
 
-    def __create_all_prompt(self):
+    def create_all_prompt(self):
         text = ""
         text += self.__create_diameter_prompt()
         text += self.__create_gravity_prompt()
@@ -142,7 +142,7 @@ class PromptCreatorService:
             prompt = "with an extremely hot surface"
         elif self.prompt_items_level.temperature_level == 10:
             prompt = "with a scorched, volcanic surface"
-        return "The planet has" + prompt + " and "
+        return "The planet has " + prompt + " and "
 
     def __create_atmosphere_prompt(self):
         prompt = ""

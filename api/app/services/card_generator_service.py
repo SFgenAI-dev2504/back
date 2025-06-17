@@ -5,7 +5,7 @@ from openai import OpenAI
 from PIL import Image
 
 from app.models.prompt_items import PromptItems
-from app.models.prompt_items_level import PromptItemsLevel
+from app.models.prompt_levels import PromptLevels
 
 
 class CardGeneratorService:
@@ -22,9 +22,9 @@ class CardGeneratorService:
             volcano=request.get("volcano"),
             aurora=request.get("aurora"),
         )
-        self.prompt_items_level = self.__calc_level()
+        self.prompt_items_level = self.calc_level()
 
-    def __calc_level(self):
+    def calc_level(self):
         if 1000 <= self.prompt_items.diameter <= 20900:
             diameter_level = 1
         elif 20901 <= self.prompt_items.diameter <= 40800:
@@ -85,7 +85,7 @@ class CardGeneratorService:
             distance_level = 6
         elif 3021 <= self.prompt_items.distance <= 3515:
             distance_level = 7
-        elif 3.516 <= self.prompt_items.distance <= 4010:
+        elif 3516 <= self.prompt_items.distance <= 4010:
             distance_level = 8
         elif 4011 <= self.prompt_items.distance <= 4505:
             distance_level = 9
@@ -117,35 +117,13 @@ class CardGeneratorService:
         else:
             temperature_level = None
 
-        if 50 <= self.prompt_items.atmosphere <= 545:
-            atmosphere_level = 1
-        elif 546 <= self.prompt_items.atmosphere <= 1040:
-            atmosphere_level = 2
-        elif 1041 <= self.prompt_items.atmosphere <= 1535:
-            atmosphere_level = 3
-        elif 1536 <= self.prompt_items.atmosphere <= 2030:
-            atmosphere_level = 4
-        elif 2031 <= self.prompt_items.atmosphere <= 2525:
-            atmosphere_level = 5
-        elif 2526 <= self.prompt_items.atmosphere <= 3020:
-            atmosphere_level = 6
-        elif 3021 <= self.prompt_items.atmosphere <= 3515:
-            atmosphere_level = 7
-        elif 3.516 <= self.prompt_items.atmosphere <= 4010:
-            atmosphere_level = 8
-        elif 4011 <= self.prompt_items.atmosphere <= 4505:
-            atmosphere_level = 9
-        elif 4506 <= self.prompt_items.atmosphere <= 5000:
-            atmosphere_level = 10
-        else:
-            atmosphere_level = None
-
+        atmosphere_level = self.__calc_percent_level(self.prompt_items.atmosphere)
         water_level = self.__calc_percent_level(self.prompt_items.water)
         terrain_level = self.__calc_percent_level(self.prompt_items.terrain)
         volcano_level = self.__calc_percent_level(self.prompt_items.volcano)
         aurora_level = self.__calc_percent_level(self.prompt_items.aurora)
 
-        return PromptItemsLevel(
+        return PromptLevels(
             diameter_level=diameter_level,
             gravity_level=gravity_level,
             distance_level=distance_level,
@@ -169,7 +147,7 @@ class CardGeneratorService:
         elif 41 <= value <= 50:
             return 5
         elif 51 <= value <= 60:
-            return 5
+            return 6
         elif 61 <= value <= 70:
             return 7
         elif 71 <= value <= 80:

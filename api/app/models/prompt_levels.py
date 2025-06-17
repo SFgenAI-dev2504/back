@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class PromptItemsLevel:
+class PromptLevels:
     diameter_level: int
     gravity_level: int
     distance_level: int
