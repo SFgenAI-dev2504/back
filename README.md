@@ -7,6 +7,7 @@
 | 日付         | 改訂者 | 改訂内容                      |
 |------------|-----|---------------------------|
 | 2025/05/20 | 今村  | 新規作成                      |
+| 2025/06/20 | 今村  | 「.envファイル」節を追記        |
 
 ## 開発環境
 
@@ -145,11 +146,21 @@ Werkzeug               3.1.3
 wheel                  0.45.1
 ```
 
-### トラブルシューティング
+## .envファイル
+
+本リポジトリでは.envファイルで環境変数を設定している。
+値がわからない場合は開発担当者に確認すること。
+
+```
+OPENAI_API_KEY=xxx
+SERVER_IMAGE_PATH=yyy
+```
+
+## トラブルシューティング
 
 トラブルシューティングを記載する。
 
-#### docker-compose up --build で「Error response from daemon: Ports are not available ... address already in use」が発生する
+### docker-compose up --build で「Error response from daemon: Ports are not available ... address already in use」が発生する
 
 Macで以下のようなエラーが発生した場合、ControlCeという機能(Monterey以降実装された機能)が5001番ポートで起動されている可能性がある。
 
