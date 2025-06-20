@@ -1,3 +1,6 @@
+import os
+import random
+from datetime import datetime
 from io import BytesIO
 
 import requests
@@ -169,10 +172,20 @@ class CardGeneratorService:
             style="natural",
         )
 
+        # OpenAIによる画像の生成
         image_response = requests.get(res.data[0].url)
         image = Image.open(BytesIO(image_response.content))
-        file_name = "test.jpg"
-        path = "../static/images/" + file_name
-        image.save(path)
+
+        # 画像を保存するパスの指定
+        save_path = os.path.join(os.path.dirname(__file__), "..", "static", "images")
+        os.makedirs(save_path, exist_ok=True)
+
+        # 画像のファイル名を生成
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        random_num = random.randint(100000, 999999)
+        file_name = f"sam_{timestamp}_{random_num}.jpg"
+
+        # 画像の保存
+        image.save(os.path.join(save_path, file_name))
 
         return file_name
