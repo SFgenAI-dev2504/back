@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 from datetime import datetime
@@ -174,18 +175,28 @@ class CardGeneratorService:
 
         # OpenAIによる画像の生成
         image_response = requests.get(res.data[0].url)
-        image = Image.open(BytesIO(image_response.content))
-
-        # 画像を保存するパスの指定
-        save_path = os.path.join(os.path.dirname(__file__), "..", "static", "images")
-        os.makedirs(save_path, exist_ok=True)
+        image = Image.open(BytesIO(image_response.content)).convert("RGBA")
 
         # 画像のファイル名を生成
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         random_num = random.randint(100000, 999999)
-        file_name = f"sam_{timestamp}_{random_num}.jpg"
+        file_dir = f"sam_{timestamp}_{random_num}"
+        image_file_name = f"{file_dir}.png"
+
+        # 画像を保存するパスの指定
+        save_path = os.path.join(
+            os.path.dirname(__file__), "..", "static", "images", file_dir
+        )
+        os.makedirs(save_path, exist_ok=True)
 
         # 画像の保存
-        image.save(os.path.join(save_path, file_name))
+        image.save(os.path.join(save_path, image_file_name))
 
-        return file_name
+        # テキスト(パラメータ)の保存
+        text_file_name = f"{file_dir}.txt"
+        param_text = f"name: {self.planet_name}, diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, atmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
+        with open(os.path.join(save_path, text_file_name), mode="w") as f:
+            f.write(param_text)
+        logging.info("param_text: " + param_text)
+
+        return f"{file_dir}/{image_file_name}"

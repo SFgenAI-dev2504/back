@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 
 from flask import Blueprint, current_app, jsonify, request
 
@@ -25,6 +24,6 @@ def generate():
     prompt = promptCreatorService.create(current_app.config.get("OPENAI_API_KEY"))
 
     # 画像の生成
+    output_image_path = current_app.config.get("SERVER_IMAGE_PATH")
     file_name = cardGeneratorService.generate(prompt)
-    image_path = current_app.config.get("SERVER_IMAGE_PATH")
-    return jsonify({"imageUrl": f"{image_path}/{file_name}"})
+    return jsonify({"imageUrl": f"{output_image_path}/{file_name}"})
