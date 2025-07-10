@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from flask import Blueprint, current_app, jsonify, request
 
@@ -28,20 +29,26 @@ def generate():
     prompt = promptCreatorService.create(current_app.config.get("OPENAI_API_KEY"))
 
     # アウトプットのベースディレクトリの作成
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    output_base_dir = f"sam_{timestamp}_{planet_name}"
+    jst_time = datetime.now(ZoneInfo("Asia/Tokyo"))
+    timestamp = jst_time.strftime("%Y%m%d%H%M%S")
+    output_base_path = f"sam_{timestamp}_{planet_name}"
     save_path = os.path.join(
-        os.path.dirname(__file__), "..", "static", "images", output_base_dir
+        os.path.dirname(__file__), "..", "static", "images", output_base_path
     )
     os.makedirs(save_path, exist_ok=True)
 
     # OpenAIによる画像の生成
-    output_base_path = current_app.config.get("SERVER_IMAGE_PATH")
-    output_ai_image_file_name = cardGeneratorService.generate(prompt, output_base_dir)
-    ai_image_file_path = os.path.join(output_base_path, output_ai_image_file_name)
+    output_ai_image_file_name = cardGeneratorService.generate(prompt, save_path)
 
     # PPTXを元に画像の加工
-    pptx_path = current_app.config.get("SERVER_PPTX_PATH")
-    pptxOperatorService = PPTXOperatorService(pptx_path, output_base_path)
-    output_image_file_name = pptxOperatorService.create_image(ai_image_file_path)
-    return jsonify({"imageUrl": f"{output_base_path}/{output_image_file_name}"})
+    pptx_file_name = current_app.config.get("SERVER_ORIGINAL_PPTX_FILE_NAME")
+    # pptxOperatorService = PPTXOperatorService(pptx_file_name, save_path)
+    # pptxOperatorService.insert_image(output_ai_image_file_name)
+    # pptxOperatorService.export_image()
+
+    # 画像ファイルのパスをフロントに返却
+    output_static_base_path = current_app.config.get("SERVER_IMAGE_PATH")
+    imageUrl = os.path.join(
+        output_static_base_path, output_base_path, output_ai_image_file_name
+    )
+    return jsonify({"imageUrl": imageUrl})
