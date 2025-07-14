@@ -3,7 +3,7 @@ from io import BytesIO
 
 import requests
 from openai import OpenAI
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from app.models.frame import Frame
 from app.models.prompt_items import PromptItems
@@ -177,7 +177,8 @@ class CardGeneratorService:
         resized_ai_image = ai_image.resize((480, 760), Image.Resampling.LANCZOS)
 
         # フレームの選定
-        frame_file_name = Frame.select_frame()
+        frame = Frame.select_frame()
+        frame_file_name = frame.get_file_name()
         frame_file_path = os.path.join(
             os.path.dirname(__file__),
             "..",
@@ -188,20 +189,70 @@ class CardGeneratorService:
         )
 
         # フレームのpngファイルの読み込み
-        frame = Image.open(frame_file_path).convert("RGBA")
+        frame_image = Image.open(frame_file_path).convert("RGBA")
 
         # サイズを生成した画像に合わせる
-        resized_frame = frame.resize(resized_ai_image.size)
+        resized_frame = frame_image.resize(resized_ai_image.size)
 
         # alpha_compositeで透過を考慮して合成
         output_image = Image.alpha_composite(resized_ai_image, resized_frame)
+
+        # 文字の合成
+        base_font_file_path = os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "static",
+            "template",
+            "font",
+        )
+
+        # 惑星名のシャドー合成
+        name_x = 20
+        name_y = 240
+        name_font_file_path = os.path.join(
+            base_font_file_path,
+            "KaKuDaron.TTF",
+        )
+        shadow_layer = Image.new("RGBA", output_image.size, (0, 0, 0, 0))
+        shadow_draw = ImageDraw.Draw(shadow_layer)
+        for i in range(3):
+            shadow_draw.text(
+                (name_x, name_y),
+                self.planet_name,
+                font=ImageFont.truetype(name_font_file_path, size=40 + i),
+                fill=frame.get_shadow_color(),
+            )
+
+        blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=10))
+        output_image.alpha_composite(blurred_shadow)
+
+        # 惑星名の合成
+        output_image_draw = ImageDraw.Draw(output_image)
+        output_image_draw.text(
+            (name_x, name_y),
+            self.planet_name,
+            font=ImageFont.truetype(name_font_file_path, size=40),
+            fill=(255, 255, 255, 255),
+        )
+
+        # パラメータの合成
+        param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, atmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
+        param_font_file_path = os.path.join(
+            base_font_file_path,
+            "OpenSans.ttf",
+        )
+        output_image_draw.text(
+            (0, 700),
+            param_text,
+            font=ImageFont.truetype(param_font_file_path, size=10),
+            fill=(255, 255, 255, 255),
+        )
 
         # 画像の保存
         output_image_file_name = f"{image_id}.png"
         output_image.save(os.path.join(save_path, output_image_file_name))
 
         # テキスト(パラメータ)の保存
-        param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, atmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
         with open(os.path.join(save_path, f"{image_id}.txt"), mode="w") as f:
             f.write(param_text)
 
