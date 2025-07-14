@@ -5,6 +5,7 @@ import requests
 from openai import OpenAI
 from PIL import Image
 
+from app.models.frame import Frame
 from app.models.prompt_items import PromptItems
 from app.models.prompt_levels import PromptLevels
 
@@ -173,6 +174,17 @@ class CardGeneratorService:
         # OpenAIによる画像の生成
         image_response = requests.get(result.data[0].url)
         image = Image.open(BytesIO(image_response.content)).convert("RGBA")
+
+        # フレームの選定
+        frame_file_name = Frame.select_frame()
+        frame_file_path = os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "static",
+            "template",
+            "frame",
+            frame_file_name,
+        )
 
         # 画像の保存
         output_image_file_name = f"{image_id}.png"
