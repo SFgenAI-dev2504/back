@@ -1,7 +1,4 @@
-import logging
 import os
-import random
-from datetime import datetime
 from io import BytesIO
 
 import requests
@@ -163,7 +160,7 @@ class CardGeneratorService:
         else:
             return None
 
-    def generate(self, prompt, save_path):
+    def generate(self, prompt, save_path, image_id):
         result = OpenAI().images.generate(
             model="dall-e-3",
             prompt=prompt,
@@ -178,12 +175,12 @@ class CardGeneratorService:
         image = Image.open(BytesIO(image_response.content)).convert("RGBA")
 
         # 画像の保存
-        output_image_file_name = "output.png"
+        output_image_file_name = f"{image_id}.png"
         image.save(os.path.join(save_path, output_image_file_name))
 
         # テキスト(パラメータ)の保存
         param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, atmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
-        with open(os.path.join(save_path, "output.txt"), mode="w") as f:
+        with open(os.path.join(save_path, f"{image_id}.txt"), mode="w") as f:
             f.write(param_text)
 
         return output_image_file_name
