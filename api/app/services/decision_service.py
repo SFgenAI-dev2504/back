@@ -3,12 +3,13 @@ import os
 
 
 class DecisionService:
-    def __init__(self, request):
-        self.image_id = request.get("imageId")
+    def __init__(self, image_id, file_name):
+        self.image_id = image_id
+        self.file_name = file_name
 
     def decide(self, save_path):
         # 書き込みファイルパスの生成
-        submit_file_path = os.path.join(save_path, "submit.txt")
+        submit_file_path = os.path.join(save_path, self.file_name)
 
         # ファイル書き込み(新規作成 or 追記)
         try:

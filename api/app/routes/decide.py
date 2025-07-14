@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from flask import Blueprint, request
+from flask import Blueprint, current_app, request
 
 from app.services.decision_service import DecisionService
 
@@ -16,10 +16,10 @@ def decide():
     image_id = req.get("imageId")
     logging.info("リクエスト: " + json.dumps(req, ensure_ascii=False))
 
-    decision_service = DecisionService(req)
-    save_path = os.path.join(
-        os.path.dirname(__file__), "..", "static", "output", image_id
+    decision_service = DecisionService(
+        image_id, current_app.config.get("SUBMIT_FILE_NAME")
     )
+    save_path = os.path.join(os.path.dirname(__file__), "..", "static", "output")
 
     # submitファイルの作成
     try:
