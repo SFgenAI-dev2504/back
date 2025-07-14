@@ -8,7 +8,6 @@ langchain-text-splitters==0.3.8
 openai==1.81.0
 pillow==11.2.1
 requests==2.32.3
-python-pptx==1.0.2
 pytest==8.2.2
 black==24.4.2
 isort==5.12.0

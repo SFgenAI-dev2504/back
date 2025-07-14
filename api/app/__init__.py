@@ -19,9 +19,6 @@ def create_app():
 
     app.config["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY")
     app.config["SERVER_IMAGE_PATH"] = os.environ.get("SERVER_IMAGE_PATH")
-    app.config["SERVER_ORIGINAL_PPTX_FILE_NAME"] = os.environ.get(
-        "SERVER_ORIGINAL_PPTX_FILE_NAME"
-    )
     app.config["DB_HOST"] = os.environ.get("DB_HOST")
     app.config["DB_USER"] = os.environ.get("DB_USER")
     app.config["DB_PASSWORD"] = os.environ.get("DB_PASSWORD")
