@@ -1,7 +1,4 @@
-import logging
 import os
-import random
-from datetime import datetime
 from io import BytesIO
 
 import requests
