@@ -38,7 +38,9 @@ def generate():
     os.makedirs(save_path, exist_ok=True)
 
     # OpenAIによる画像の生成
-    output_ai_image_file_name = cardGeneratorService.generate(prompt, save_path, image_id)
+    output_ai_image_file_name = cardGeneratorService.generate(
+        prompt, save_path, image_id
+    )
 
     # フロントに返却
     output_static_base_path = current_app.config.get("SERVER_IMAGE_PATH")

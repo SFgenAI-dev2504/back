@@ -17,7 +17,7 @@ def decide():
     logging.info("リクエスト: " + json.dumps(req, ensure_ascii=False))
 
     decision_service = DecisionService(
-        image_id, current_app.config.get("SUBMIT_FILE_NAME")
+        image_id, current_app.config.get("SERVER_SUBMIT_FILE_NAME")
     )
     save_path = os.path.join(os.path.dirname(__file__), "..", "static", "output")
 
