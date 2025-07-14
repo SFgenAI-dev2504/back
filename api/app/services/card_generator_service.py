@@ -213,16 +213,22 @@ class CardGeneratorService:
             base_font_file_path,
             "KaKuDaron.TTF",
         )
+
+        name_image_font = ImageFont.truetype(name_font_file_path, size=40)
+        text_bbox = name_image_font.getbbox(self.planet_name)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
+
         shadow_layer = Image.new("RGBA", output_image.size, (0, 0, 0, 0))
         shadow_draw = ImageDraw.Draw(shadow_layer)
-        for i in range(3):
-            shadow_draw.text(
-                (name_x, name_y),
-                self.planet_name,
-                font=ImageFont.truetype(name_font_file_path, size=40 + i),
-                fill=frame.get_shadow_color(),
-            )
-
+        padding = 12
+        box = (
+            name_x - padding,
+            name_y - padding,
+            name_x + text_width + padding,
+            name_y + text_height + padding,
+        )
+        shadow_draw.rectangle(box, fill=frame.get_shadow_color())
         blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=10))
         output_image.alpha_composite(blurred_shadow)
 

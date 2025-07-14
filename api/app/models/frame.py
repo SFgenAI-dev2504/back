@@ -26,11 +26,11 @@ class Frame(Enum):
 
     def get_shadow_color(self):
         if self.value == 1:
-            color = (255, 0, 0, 255)
+            color = (255, 0, 0, 100)
         elif self.value == 2:
-            color = (0, 0, 255, 255)
+            color = (0, 0, 255, 100)
         elif self.value == 3:
-            color = (255, 255, 0, 255)
+            color = (255, 255, 0, 100)
         else:
             raise RuntimeError
         return color
