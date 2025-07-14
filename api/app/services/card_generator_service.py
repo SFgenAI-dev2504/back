@@ -173,7 +173,8 @@ class CardGeneratorService:
 
         # OpenAIによる画像の生成
         image_response = requests.get(result.data[0].url)
-        image = Image.open(BytesIO(image_response.content)).convert("RGBA")
+        ai_image = Image.open(BytesIO(image_response.content)).convert("RGBA")
+        resized_ai_image = ai_image.resize((480, 760), Image.Resampling.LANCZOS)
 
         # フレームの選定
         frame_file_name = Frame.select_frame()
@@ -186,9 +187,18 @@ class CardGeneratorService:
             frame_file_name,
         )
 
+        # フレームのpngファイルの読み込み
+        frame = Image.open(frame_file_path).convert("RGBA")
+
+        # サイズを生成した画像に合わせる
+        resized_frame = frame.resize(resized_ai_image.size)
+
+        # alpha_compositeで透過を考慮して合成
+        output_image = Image.alpha_composite(resized_ai_image, resized_frame)
+
         # 画像の保存
         output_image_file_name = f"{image_id}.png"
-        image.save(os.path.join(save_path, output_image_file_name))
+        output_image.save(os.path.join(save_path, output_image_file_name))
 
         # テキスト(パラメータ)の保存
         param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, atmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
