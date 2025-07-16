@@ -6,6 +6,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from .models.db import init_db
+from .routes.healthcheck import health_check_bp
 from .routes.decide import decide_bp
 from .routes.generate import generate_bp
 
@@ -30,6 +31,7 @@ def create_app():
     init_db(app)
 
     # Blueprintの設定
+    app.register_blueprint(health_check_bp)
     app.register_blueprint(generate_bp)
     app.register_blueprint(decide_bp)
 

@@ -5,7 +5,7 @@ import random
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, request
 
 from app.services.card_generator_service import CardGeneratorService
 from app.services.prompt_creator_service import PromptCreatorService
@@ -17,7 +17,6 @@ generate_bp = Blueprint("generate", __name__)
 def generate():
     # リクエストを受信
     req = request.get_json()
-    planet_name = req.get("planetName")
     logging.info("リクエスト: " + json.dumps(req, ensure_ascii=False))
 
     cardGeneratorService = CardGeneratorService(req)
@@ -38,13 +37,40 @@ def generate():
     os.makedirs(save_path, exist_ok=True)
 
     # OpenAIによる画像の生成
-    output_ai_image_file_name = cardGeneratorService.generate(
-        prompt, save_path, image_id
-    )
+    try:
+        body = cardGeneratorService.generate(prompt, save_path, image_id)
+        logging.info(body)
+        image_file_name = body.get("imageFileName")
 
-    # フロントに返却
-    output_static_base_path = current_app.config.get("SERVER_IMAGE_PATH")
-    imageUrl = os.path.join(
-        output_static_base_path, image_id, output_ai_image_file_name
-    )
-    return jsonify({"imageUrl": imageUrl, "imageId": image_id})
+        if body.get("code") is None or body.get("message") is None:
+            output_static_base_path = current_app.config.get("SERVER_IMAGE_PATH")
+            imageUrl = os.path.join(output_static_base_path, image_id, image_file_name)
+            return Response(
+                response=json.dumps(
+                    {
+                        "imageFileName": image_file_name,
+                        "imageUrl": imageUrl,
+                        "imageId": image_id,
+                        "code": None,
+                        "message": None,
+                    }
+                ),
+                status=200,
+            )
+        else:
+            return Response(response=json.dumps(body), status=500)
+
+    except Exception as e:
+        logging.error(f"画像生成で予期せぬエラーが発生しました。: {e}")
+        return Response(
+            response=json.dumps(
+                {
+                    "imageFileName": None,
+                    "imageUrl": None,
+                    "imageId": None,
+                    "code": "E01_006",
+                    "message": "画像生成で予期せぬエラーが発生しました。",
+                }
+            ),
+            status=500,
+        )

@@ -33,3 +33,6 @@ mysql/data/
 *~
 *.swp
 *.tmp
+
+# output
+api/app/static/output
