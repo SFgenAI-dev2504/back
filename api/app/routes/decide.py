@@ -2,7 +2,7 @@ import json
 import logging
 import os
 
-from flask import Blueprint, current_app, request
+from flask import Blueprint, Response, current_app, request
 
 from app.services.decision_service import DecisionService
 
@@ -21,15 +21,23 @@ def decide():
     )
     save_path = os.path.join(os.path.dirname(__file__), "..", "static", "output")
 
-    # submitファイルの作成
     try:
-        return decision_service.decide(save_path)
+        # submitファイルの作成
+        body = decision_service.decide(save_path)
+        if body.get("code") is None and body.get("message") is None:
+            return Response(response=json.dumps(body), status=200)
+        else:
+            return Response(response=json.dumps(body), status=500)
     except Exception as e:
         logging.error(
             f"submitファイルのファイル操作で予期せぬエラーが発生しました。: {e}"
         )
-        return {
-            "isOK": False,
-            "code": "E02_005",
-            "message": "submitファイルのファイル操作で予期せぬエラーが発生しました。",
-        }
+        return Response(
+            response=json.dumps(
+                {
+                    "code": "E02_005",
+                    "message": "submitファイルのファイル操作で予期せぬエラーが発生しました。",
+                }
+            ),
+            status=500,
+        )

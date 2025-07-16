@@ -1,3 +1,4 @@
+import logging
 import os
 from io import BytesIO
 
@@ -162,104 +163,156 @@ class CardGeneratorService:
             return None
 
     def generate(self, prompt, save_path, image_id):
-        result = OpenAI().images.generate(
-            model="dall-e-3",
-            prompt=prompt,
-            size="1024x1024",
-            quality="standard",
-            response_format="url",
-            style="natural",
-        )
+        try:
+            result = OpenAI().images.generate(
+                model="dall-e-3",
+                prompt=prompt,
+                size="1024x1024",
+                quality="standard",
+                response_format="url",
+                style="natural",
+            )
+        except Exception as e:
+            logging.error(f"ChatGPTの画像生成に失敗しました。: {e}")
+            return {
+                "imageUrl": None,
+                "imageId": None,
+                "code": "E01_001",
+                "message": "ChatGPTの画像生成に失敗しました。",
+            }
 
-        # OpenAIによる画像の生成
-        image_response = requests.get(result.data[0].url)
-        ai_image = Image.open(BytesIO(image_response.content)).convert("RGBA")
-        resized_ai_image = ai_image.resize((480, 760), Image.Resampling.LANCZOS)
+        try:
+            # OpenAIによる画像の生成
+            image_response = requests.get(result.data[0].url)
+            ai_image = Image.open(BytesIO(image_response.content)).convert("RGBA")
+            resized_ai_image = ai_image.resize((480, 760), Image.Resampling.LANCZOS)
 
-        # フレームの選定
-        frame = Frame.select_frame()
-        frame_file_name = frame.get_file_name()
-        frame_file_path = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "static",
-            "template",
-            "frame",
-            frame_file_name,
-        )
+            # フレームの選定
+            frame = Frame.select_frame()
+            frame_file_name = frame.get_file_name()
+            frame_file_path = os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "static",
+                "template",
+                "frame",
+                frame_file_name,
+            )
 
-        # フレームのpngファイルの読み込み
-        frame_image = Image.open(frame_file_path).convert("RGBA")
+            # フレームのpngファイルの読み込み
+            frame_image = Image.open(frame_file_path).convert("RGBA")
 
-        # サイズを生成した画像に合わせる
-        resized_frame = frame_image.resize(resized_ai_image.size)
+            # サイズを生成した画像に合わせる
+            resized_frame = frame_image.resize(resized_ai_image.size)
 
-        # alpha_compositeで透過を考慮して合成
-        output_image = Image.alpha_composite(resized_ai_image, resized_frame)
+            # alpha_compositeで透過を考慮して合成
+            output_image = Image.alpha_composite(resized_ai_image, resized_frame)
 
-        # 文字の合成
-        base_font_file_path = os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "static",
-            "template",
-            "font",
-        )
+            # 文字の合成
+            base_font_file_path = os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "static",
+                "template",
+                "font",
+            )
 
-        # 惑星名のシャドー合成
-        name_x = 20
-        name_y = 240
-        name_font_file_path = os.path.join(
-            base_font_file_path,
-            "KaKuDaron.TTF",
-        )
+            # 惑星名のシャドー合成
+            name_x = 20
+            name_y = 240
+            name_font_file_path = os.path.join(
+                base_font_file_path,
+                "KaKuDaron.TTF",
+            )
 
-        name_image_font = ImageFont.truetype(name_font_file_path, size=40)
-        text_bbox = name_image_font.getbbox(self.planet_name)
-        text_width = text_bbox[2] - text_bbox[0]
-        text_height = text_bbox[3] - text_bbox[1]
+            name_image_font = ImageFont.truetype(name_font_file_path, size=40)
+            text_bbox = name_image_font.getbbox(self.planet_name)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
 
-        shadow_layer = Image.new("RGBA", output_image.size, (0, 0, 0, 0))
-        shadow_draw = ImageDraw.Draw(shadow_layer)
-        padding = 12
-        box = (
-            name_x - padding,
-            name_y - padding,
-            name_x + text_width + padding,
-            name_y + text_height + padding,
-        )
-        shadow_draw.rectangle(box, fill=frame.get_shadow_color())
-        blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=10))
-        output_image.alpha_composite(blurred_shadow)
+            shadow_layer = Image.new("RGBA", output_image.size, (0, 0, 0, 0))
+            shadow_draw = ImageDraw.Draw(shadow_layer)
+            padding = 12
+            box = (
+                name_x - padding,
+                name_y - padding,
+                name_x + text_width + padding,
+                name_y + text_height + padding,
+            )
+            shadow_draw.rectangle(box, fill=frame.get_shadow_color())
+            blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=10))
+            output_image.alpha_composite(blurred_shadow)
 
-        # 惑星名の合成
-        output_image_draw = ImageDraw.Draw(output_image)
-        output_image_draw.text(
-            (name_x, name_y),
-            self.planet_name,
-            font=ImageFont.truetype(name_font_file_path, size=40),
-            fill=(255, 255, 255, 255),
-        )
+            # 惑星名の合成
+            output_image_draw = ImageDraw.Draw(output_image)
+            output_image_draw.text(
+                (name_x, name_y),
+                self.planet_name,
+                font=ImageFont.truetype(name_font_file_path, size=40),
+                fill=(255, 255, 255, 255),
+            )
 
-        # パラメータの合成
-        param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, atmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
-        param_font_file_path = os.path.join(
-            base_font_file_path,
-            "OpenSans.ttf",
-        )
-        output_image_draw.text(
-            (0, 700),
-            param_text,
-            font=ImageFont.truetype(param_font_file_path, size=10),
-            fill=(255, 255, 255, 255),
-        )
+            # パラメータの合成
+            param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, atmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
+            param_font_file_path = os.path.join(
+                base_font_file_path,
+                "OpenSans.ttf",
+            )
+            output_image_draw.text(
+                (0, 700),
+                param_text,
+                font=ImageFont.truetype(param_font_file_path, size=10),
+                fill=(255, 255, 255, 255),
+            )
 
-        # 画像の保存
-        output_image_file_name = f"{image_id}.png"
-        output_image.save(os.path.join(save_path, output_image_file_name))
+            # 画像の保存
+            output_image_file_name = f"{image_id}.png"
+            output_image.save(os.path.join(save_path, output_image_file_name))
 
-        # テキスト(パラメータ)の保存
-        with open(os.path.join(save_path, f"{image_id}.txt"), mode="w") as f:
-            f.write(param_text)
+            # テキスト(パラメータ)の保存
+            with open(os.path.join(save_path, f"{image_id}.txt"), mode="w") as f:
+                f.write(param_text)
 
-        return output_image_file_name
+            return {
+                "imageFileName": output_image_file_name,
+                "imageUrl": None,
+                "imageId": None,
+                "code": None,
+                "message": None,
+            }
+        except FileNotFoundError as fnfe:
+            logging.error(f"ファイル、もしくはディレクトリが存在しません。: {fnfe}")
+            return {
+                "imageFileName": None,
+                "imageUrl": None,
+                "imageId": None,
+                "code": "E01_002",
+                "message": "ファイル、もしくはディレクトリが存在しません。",
+            }
+        except FileExistsError as fee:
+            logging.error(f"ファイルが既に存在します。: {fee}")
+            return {
+                "imageFileName": None,
+                "imageUrl": None,
+                "imageId": None,
+                "code": "E01_003",
+                "message": "ファイルが既に存在します。",
+            }
+        except PermissionError as pe:
+            logging.error(f"ファイルへのアクセス権限がありません。: {pe}")
+            return {
+                "imageFileName": None,
+                "imageUrl": None,
+                "imageId": None,
+                "code": "E01_004",
+                "message": "ファイルへのアクセス権限がありません。",
+            }
+        except IOError as ioe:
+            logging.error(f"ファイルのファイル操作でエラーが発生しました。: {ioe}")
+            return {
+                "imageFileName": None,
+                "imageUrl": None,
+                "imageId": None,
+                "code": "E01_005",
+                "message": "ファイルのファイル操作でエラーが発生しました。",
+            }

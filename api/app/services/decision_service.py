@@ -15,27 +15,24 @@ class DecisionService:
         try:
             with open(submit_file_path, "a", encoding="utf-8") as f:
                 f.write(f"・画像ID：{self.image_id}\n")
-            return {"isOK": True}
+            return {"code": None, "message": None}
         except FileNotFoundError as fnfe:
             logging.error(
                 f"submitファイル、もしくはディレクトリが存在しません。: {fnfe}"
             )
             return {
-                "isOK": False,
                 "code": "E02_001",
                 "message": "submitファイル、もしくはディレクトリが存在しません。",
             }
         except FileExistsError as fee:
             logging.error(f"submitファイルが既に存在します。: {fee}")
             return {
-                "isOK": False,
                 "code": "E02_002",
                 "message": "submitファイルが既に存在します。",
             }
         except PermissionError as pe:
             logging.error(f"submitファイルへのアクセス権限がありません。: {pe}")
             return {
-                "isOK": False,
                 "code": "E02_003",
                 "message": "submitファイルへのアクセス権限がありません。",
             }
@@ -44,7 +41,6 @@ class DecisionService:
                 f"submitファイルのファイル操作でエラーが発生しました。: {ioe}"
             )
             return {
-                "isOK": False,
                 "code": "E02_004",
                 "message": "submitファイルのファイル操作でエラーが発生しました。",
             }
