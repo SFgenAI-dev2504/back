@@ -308,11 +308,11 @@ class CardGeneratorService:
                 "message": "ファイルへのアクセス権限がありません。",
             }
         except IOError as ioe:
-            logging.error(f"ファイルのファイル操作でエラーが発生しました。: {ioe}")
+            logging.error(f"ファイル操作でエラーが発生しました。: {ioe}")
             return {
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
                 "code": "E01_005",
-                "message": "ファイルのファイル操作でエラーが発生しました。",
+                "message": "ファイル操作でエラーが発生しました。",
             }
