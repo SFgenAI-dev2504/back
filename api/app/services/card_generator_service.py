@@ -231,7 +231,7 @@ class CardGeneratorService:
 
             # 惑星名のシャドー合成
             name_x = 105
-            name_y = 1400
+            name_y = 1350
             name_font_file_path = os.path.join(
                 base_font_file_path,
                 "KaKuDaron.TTF",
@@ -239,7 +239,7 @@ class CardGeneratorService:
 
             # シャドーの合成
             if len(self.planet_name) < 8:
-                size = 96
+                size = 100
             else:
                 # 8文字以上の場合はフォントサイズを小さめにする。
                 size = 86
@@ -251,15 +251,15 @@ class CardGeneratorService:
 
             shadow_layer = Image.new("RGBA", ai_image.size, (0, 0, 0, 0))
             shadow_draw = ImageDraw.Draw(shadow_layer)
-            padding = 12
+            padding = 24
             box = (
                 name_x - padding,
                 name_y - padding,
                 name_x + text_width + padding,
                 name_y + text_height + padding,
             )
-            shadow_draw.rectangle(box, fill=frame.get_shadow_color())
-            blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=10))
+            shadow_draw.rounded_rectangle(box, fill=frame.get_shadow_color(), radius=36)
+            blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=16))
             ai_image.alpha_composite(blurred_shadow)
 
             # 惑星名の合成
@@ -284,9 +284,30 @@ class CardGeneratorService:
                 fill=(255, 255, 255, 255),
             )
 
+            # 印刷用の画像のクロップ
+            trim_x_px = 111
+            output_image = ai_image.crop(
+                (0, trim_x_px, ai_image_width, ai_image_height - trim_x_px)
+            )
+
+            # 印刷用の画像の保存
+            output_image.save(os.path.join(save_path, f"{image_id}.png"))
+
+            # フロント表示用の画像のクロップ
+            trim_x_px = 51
+            trim_y_px = 162
+            output_display_image = ai_image.crop(
+                (
+                    trim_x_px,
+                    trim_y_px,
+                    ai_image_width - trim_x_px,
+                    ai_image_height - trim_y_px,
+                )
+            )
+
             # 画像の保存
-            output_image_file_name = f"{image_id}.png"
-            ai_image.save(os.path.join(save_path, output_image_file_name))
+            output_image_file_name = f"{image_id}_display.png"
+            output_display_image.save(os.path.join(save_path, output_image_file_name))
 
             # テキスト(パラメータ)の保存
             with open(os.path.join(save_path, f"{image_id}.txt"), mode="w") as f:
