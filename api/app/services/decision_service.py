@@ -18,27 +18,31 @@ class DecisionService:
             return {"code": None, "message": None}
         except FileNotFoundError as fnfe:
             logging.error(
-                f"submitファイル、もしくはディレクトリが存在しません。: {fnfe}"
+                f"submitファイル、もしくはディレクトリが存在しません。: {fnfe}",
+                stack_info=True,
             )
             return {
                 "code": "E02_001",
                 "message": "submitファイル、もしくはディレクトリが存在しません。",
             }
         except FileExistsError as fee:
-            logging.error(f"submitファイルが既に存在します。: {fee}")
+            logging.error(f"submitファイルが既に存在します。: {fee}", stack_info=True)
             return {
                 "code": "E02_002",
                 "message": "submitファイルが既に存在します。",
             }
         except PermissionError as pe:
-            logging.error(f"submitファイルへのアクセス権限がありません。: {pe}")
+            logging.error(
+                f"submitファイルへのアクセス権限がありません。: {pe}", stack_info=True
+            )
             return {
                 "code": "E02_003",
                 "message": "submitファイルへのアクセス権限がありません。",
             }
         except IOError as ioe:
             logging.error(
-                f"submitファイルのファイル操作でエラーが発生しました。: {ioe}"
+                f"submitファイルのファイル操作でエラーが発生しました。: {ioe}",
+                stack_info=True,
             )
             return {
                 "code": "E02_004",
