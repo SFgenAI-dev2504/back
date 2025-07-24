@@ -187,7 +187,6 @@ class CardGeneratorService:
             ai_image = (
                 Image.open(BytesIO(image_response.content)).convert("RGBA").copy()
             )
-            ai_image.save(os.path.join(save_path, f"{image_id}_tmp.png"))
 
             # フレーム画像の選定
             frame = Frame.select_frame()
@@ -231,14 +230,21 @@ class CardGeneratorService:
             )
 
             # 惑星名のシャドー合成
-            name_x = 40
+            name_x = 105
             name_y = 1400
             name_font_file_path = os.path.join(
                 base_font_file_path,
                 "KaKuDaron.TTF",
             )
 
-            name_image_font = ImageFont.truetype(name_font_file_path, size=40)
+            # シャドーの合成
+            if len(self.planet_name) < 8:
+                size = 96
+            else:
+                # 8文字以上の場合はフォントサイズを小さめにする。
+                size = 86
+                name_y += 10
+            name_image_font = ImageFont.truetype(name_font_file_path, size=size)
             text_bbox = name_image_font.getbbox(self.planet_name)
             text_width = text_bbox[2] - text_bbox[0]
             text_height = text_bbox[3] - text_bbox[1]
@@ -261,20 +267,20 @@ class CardGeneratorService:
             output_image_draw.text(
                 (name_x, name_y),
                 self.planet_name,
-                font=ImageFont.truetype(name_font_file_path, size=64),
+                font=name_image_font,
                 fill=(255, 255, 255, 255),
             )
 
             # パラメータの合成
-            param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, \natmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora :{self.prompt_items.aurora}\n"
+            param_text = f"diameter:{self.prompt_items.diameter}, gravity:{self.prompt_items.gravity}, distance:{self.prompt_items.distance}, temperature:{self.prompt_items.temperature}, \natmosphere:{self.prompt_items.atmosphere}, water:{self.prompt_items.water}, terrain:{self.prompt_items.terrain}, volcano:{self.prompt_items.volcano}, aurora:{self.prompt_items.aurora}\n"
             param_font_file_path = os.path.join(
                 base_font_file_path,
                 "OpenSans.ttf",
             )
             output_image_draw.text(
-                (0, 1400),
+                (280, 1550),
                 param_text,
-                font=ImageFont.truetype(param_font_file_path, size=12),
+                font=ImageFont.truetype(param_font_file_path, size=21),
                 fill=(255, 255, 255, 255),
             )
 
