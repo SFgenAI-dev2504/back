@@ -61,7 +61,7 @@ def generate():
             return Response(response=json.dumps(body), status=500)
 
     except Exception as e:
-        logging.error(f"画像生成で予期せぬエラーが発生しました。: {e}")
+        logging.error(f"画像生成で予期せぬエラーが発生しました。: {e}", stack_info=True)
         return Response(
             response=json.dumps(
                 {

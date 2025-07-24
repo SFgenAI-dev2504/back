@@ -167,13 +167,13 @@ class CardGeneratorService:
             result = OpenAI().images.generate(
                 model="dall-e-3",
                 prompt=prompt,
-                size="1024x1024",
+                size="1024x1792",
                 quality="standard",
                 response_format="url",
                 style="natural",
             )
         except Exception as e:
-            logging.error(f"ChatGPTの画像生成に失敗しました。: {e}")
+            logging.error(f"ChatGPTの画像生成に失敗しました。: {e}", stack_info=True)
             return {
                 "imageUrl": None,
                 "imageId": None,
@@ -184,11 +184,15 @@ class CardGeneratorService:
         try:
             # OpenAIによる画像の生成
             image_response = requests.get(result.data[0].url)
-            ai_image = Image.open(BytesIO(image_response.content)).convert("RGBA")
-            resized_ai_image = ai_image.resize((480, 760), Image.Resampling.LANCZOS)
+            ai_image = (
+                Image.open(BytesIO(image_response.content)).convert("RGBA").copy()
+            )
+            ai_image.save(os.path.join(save_path, f"{image_id}_tmp.png"))
 
-            # フレームの選定
+            # フレーム画像の選定
             frame = Frame.select_frame()
+
+            # フレーム画像のファイルの読み込み
             frame_file_name = frame.get_file_name()
             frame_file_path = os.path.join(
                 os.path.dirname(__file__),
@@ -198,15 +202,24 @@ class CardGeneratorService:
                 "frame",
                 frame_file_name,
             )
-
-            # フレームのpngファイルの読み込み
             frame_image = Image.open(frame_file_path).convert("RGBA")
 
-            # サイズを生成した画像に合わせる
-            resized_frame = frame_image.resize(resized_ai_image.size)
+            # フレーム画像をAI生成画像の横幅に一致するようにアスペクト比を保ったままリサイズ
+            # MEMO: フレーム画像の方が大きい前提
+            ai_image_width, ai_image_height = ai_image.size
+            frame_image_width, frame_image_height = frame_image.size
+            resized_frame_image_height = int(
+                frame_image_height * (ai_image_width / frame_image_width)
+            )
+            resized_frame_image = frame_image.resize(
+                (ai_image_width, resized_frame_image_height), Image.Resampling.LANCZOS
+            )
 
-            # alpha_compositeで透過を考慮して合成
-            output_image = Image.alpha_composite(resized_ai_image, resized_frame)
+            # 縦方向中央の位置を計算
+            position = (0, abs(ai_image_height - resized_frame_image_height) // 2)
+
+            # AI生成画像とフレーム画像の合成
+            ai_image.paste(resized_frame_image, position, resized_frame_image)
 
             # 文字の合成
             base_font_file_path = os.path.join(
@@ -218,8 +231,8 @@ class CardGeneratorService:
             )
 
             # 惑星名のシャドー合成
-            name_x = 20
-            name_y = 240
+            name_x = 40
+            name_y = 1400
             name_font_file_path = os.path.join(
                 base_font_file_path,
                 "KaKuDaron.TTF",
@@ -230,7 +243,7 @@ class CardGeneratorService:
             text_width = text_bbox[2] - text_bbox[0]
             text_height = text_bbox[3] - text_bbox[1]
 
-            shadow_layer = Image.new("RGBA", output_image.size, (0, 0, 0, 0))
+            shadow_layer = Image.new("RGBA", ai_image.size, (0, 0, 0, 0))
             shadow_draw = ImageDraw.Draw(shadow_layer)
             padding = 12
             box = (
@@ -241,14 +254,14 @@ class CardGeneratorService:
             )
             shadow_draw.rectangle(box, fill=frame.get_shadow_color())
             blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=10))
-            output_image.alpha_composite(blurred_shadow)
+            ai_image.alpha_composite(blurred_shadow)
 
             # 惑星名の合成
-            output_image_draw = ImageDraw.Draw(output_image)
+            output_image_draw = ImageDraw.Draw(ai_image)
             output_image_draw.text(
                 (name_x, name_y),
                 self.planet_name,
-                font=ImageFont.truetype(name_font_file_path, size=40),
+                font=ImageFont.truetype(name_font_file_path, size=64),
                 fill=(255, 255, 255, 255),
             )
 
@@ -259,15 +272,15 @@ class CardGeneratorService:
                 "OpenSans.ttf",
             )
             output_image_draw.text(
-                (0, 700),
+                (0, 1400),
                 param_text,
-                font=ImageFont.truetype(param_font_file_path, size=10),
+                font=ImageFont.truetype(param_font_file_path, size=12),
                 fill=(255, 255, 255, 255),
             )
 
             # 画像の保存
             output_image_file_name = f"{image_id}.png"
-            output_image.save(os.path.join(save_path, output_image_file_name))
+            ai_image.save(os.path.join(save_path, output_image_file_name))
 
             # テキスト(パラメータ)の保存
             with open(os.path.join(save_path, f"{image_id}.txt"), mode="w") as f:
@@ -281,7 +294,10 @@ class CardGeneratorService:
                 "message": None,
             }
         except FileNotFoundError as fnfe:
-            logging.error(f"ファイル、もしくはディレクトリが存在しません。: {fnfe}")
+            logging.error(
+                f"ファイル、もしくはディレクトリが存在しません。: {fnfe}",
+                stack_info=True,
+            )
             return {
                 "imageFileName": None,
                 "imageUrl": None,
@@ -290,7 +306,7 @@ class CardGeneratorService:
                 "message": "ファイル、もしくはディレクトリが存在しません。",
             }
         except FileExistsError as fee:
-            logging.error(f"ファイルが既に存在します。: {fee}")
+            logging.error(f"ファイルが既に存在します。: {fee}", stack_info=True)
             return {
                 "imageFileName": None,
                 "imageUrl": None,
@@ -299,7 +315,9 @@ class CardGeneratorService:
                 "message": "ファイルが既に存在します。",
             }
         except PermissionError as pe:
-            logging.error(f"ファイルへのアクセス権限がありません。: {pe}")
+            logging.error(
+                f"ファイルへのアクセス権限がありません。: {pe}", stack_info=True
+            )
             return {
                 "imageFileName": None,
                 "imageUrl": None,
@@ -308,7 +326,9 @@ class CardGeneratorService:
                 "message": "ファイルへのアクセス権限がありません。",
             }
         except IOError as ioe:
-            logging.error(f"ファイル操作でエラーが発生しました。: {ioe}")
+            logging.error(
+                f"ファイル操作でエラーが発生しました。: {ioe}", stack_info=True
+            )
             return {
                 "imageFileName": None,
                 "imageUrl": None,

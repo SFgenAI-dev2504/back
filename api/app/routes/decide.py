@@ -30,7 +30,8 @@ def decide():
             return Response(response=json.dumps(body), status=500)
     except Exception as e:
         logging.error(
-            f"submitファイルのファイル操作で予期せぬエラーが発生しました。: {e}"
+            f"submitファイルのファイル操作で予期せぬエラーが発生しました。: {e}",
+            stack_info=True,
         )
         return Response(
             response=json.dumps(

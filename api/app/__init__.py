@@ -6,9 +6,9 @@ from flask import Flask
 from flask_cors import CORS
 
 from .models.db import init_db
-from .routes.healthcheck import health_check_bp
 from .routes.decide import decide_bp
 from .routes.generate import generate_bp
+from .routes.healthcheck import health_check_bp
 
 
 def create_app():
