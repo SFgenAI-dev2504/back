@@ -185,9 +185,7 @@ class CardGeneratorService:
         try:
             # OpenAIによる画像の生成
             image_response = requests.get(result.data[0].url)
-            ai_image = (
-                Image.open(BytesIO(image_response.content)).convert("RGBA").copy()
-            )
+            ai_image = Image.open(BytesIO(image_response.content)).convert("RGBA").copy()
 
             # フレーム画像の選定
             frame = Frame.select_frame()

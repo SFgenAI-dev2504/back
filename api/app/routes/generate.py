@@ -42,7 +42,7 @@ def generate():
         logging.info(body)
         image_file_name = body.get("imageFileName")
 
-        if body.get("code") is None or body.get("message") is None:
+        if body.get("code") is None and body.get("message") is None:
             output_static_base_path = current_app.config.get("SERVER_IMAGE_PATH")
             imageUrl = os.path.join(output_static_base_path, image_id, image_file_name)
             explanation = "バックエンドテキストバックエンドテキストバックエンドテキストエンドテキストバックエンドテキストバックエンドテキスト"
