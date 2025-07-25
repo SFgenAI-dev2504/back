@@ -170,7 +170,6 @@ class CardGeneratorService:
                 size="1024x1792",
                 quality="standard",
                 response_format="url",
-                style="natural",
             )
         except Exception as e:
             logging.error(f"ChatGPTの画像生成に失敗しました。: {e}", stack_info=True)
