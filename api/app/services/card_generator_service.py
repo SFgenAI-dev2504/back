@@ -176,6 +176,8 @@ class CardGeneratorService:
             return {
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_001",
                 "message": "ChatGPTの画像生成に失敗しました。",
             }
@@ -316,6 +318,8 @@ class CardGeneratorService:
                 "imageFileName": output_image_file_name,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": None,
                 "message": None,
             }
@@ -328,6 +332,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_002",
                 "message": "ファイル、もしくはディレクトリが存在しません。",
             }
@@ -337,6 +343,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_003",
                 "message": "ファイルが既に存在します。",
             }
@@ -348,6 +356,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_004",
                 "message": "ファイルへのアクセス権限がありません。",
             }
@@ -359,6 +369,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_005",
                 "message": "ファイル操作でエラーが発生しました。",
             }

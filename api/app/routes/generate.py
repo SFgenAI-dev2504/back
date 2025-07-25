@@ -45,12 +45,15 @@ def generate():
         if body.get("code") is None or body.get("message") is None:
             output_static_base_path = current_app.config.get("SERVER_IMAGE_PATH")
             imageUrl = os.path.join(output_static_base_path, image_id, image_file_name)
+            explanation = "バックエンドテキストバックエンドテキストバックエンドテキストエンドテキストバックエンドテキストバックエンドテキスト"
             return Response(
                 response=json.dumps(
                     {
                         "imageFileName": image_file_name,
                         "imageUrl": imageUrl,
                         "imageId": image_id,
+                        "explanation": explanation,
+                        "rate": 1,
                         "code": None,
                         "message": None,
                     }
@@ -68,6 +71,8 @@ def generate():
                     "imageFileName": None,
                     "imageUrl": None,
                     "imageId": None,
+                    "explanation": None,
+                    "rate": None,
                     "code": "E01_006",
                     "message": "画像生成で予期せぬエラーが発生しました。",
                 }
