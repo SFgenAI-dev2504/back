@@ -176,6 +176,8 @@ class CardGeneratorService:
             return {
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_001",
                 "message": "ChatGPTの画像生成に失敗しました。",
             }
@@ -183,9 +185,7 @@ class CardGeneratorService:
         try:
             # OpenAIによる画像の生成
             image_response = requests.get(result.data[0].url)
-            ai_image = (
-                Image.open(BytesIO(image_response.content)).convert("RGBA").copy()
-            )
+            ai_image = Image.open(BytesIO(image_response.content)).convert("RGBA").copy()
 
             # フレーム画像の選定
             frame = Frame.select_frame()
@@ -316,6 +316,8 @@ class CardGeneratorService:
                 "imageFileName": output_image_file_name,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": None,
                 "message": None,
             }
@@ -328,6 +330,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_002",
                 "message": "ファイル、もしくはディレクトリが存在しません。",
             }
@@ -337,6 +341,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_003",
                 "message": "ファイルが既に存在します。",
             }
@@ -348,6 +354,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_004",
                 "message": "ファイルへのアクセス権限がありません。",
             }
@@ -359,6 +367,8 @@ class CardGeneratorService:
                 "imageFileName": None,
                 "imageUrl": None,
                 "imageId": None,
+                "explanation": None,
+                "rate": None,
                 "code": "E01_005",
                 "message": "ファイル操作でエラーが発生しました。",
             }
