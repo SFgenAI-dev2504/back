@@ -285,7 +285,7 @@ class CardGeneratorService:
             )
 
             # 印刷用の画像のクロップ
-            trim_x_px = 111
+            trim_x_px = 110.93
             output_image = ai_image.crop(
                 (0, trim_x_px, ai_image_width, ai_image_height - trim_x_px)
             )
@@ -294,8 +294,8 @@ class CardGeneratorService:
             output_image.save(os.path.join(save_path, f"{image_id}.png"))
 
             # フロント表示用の画像のクロップ
-            trim_x_px = 51
-            trim_y_px = 162
+            trim_x_px = 51.20
+            trim_y_px = 162.13
             output_display_image = ai_image.crop(
                 (
                     trim_x_px,
