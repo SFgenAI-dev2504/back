@@ -27,4 +27,4 @@ jobs:
         working-directory: api
       - name: Run pytest
         run: PYTHONPATH=. pytest
-        working-directory: back/api
+        working-directory: api
