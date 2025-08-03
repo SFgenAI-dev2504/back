@@ -16,9 +16,8 @@ def decide():
     image_id = req.get("imageId")
     logging.info("リクエスト: " + json.dumps(req, ensure_ascii=False))
 
-    decision_service = DecisionService(
-        image_id, current_app.config.get("SERVER_SUBMIT_FILE_NAME")
-    )
+    submit_file_name = current_app.config.get("SERVER_SUBMIT_FILE_NAME")
+    decision_service = DecisionService(image_id, submit_file_name)
     save_path = os.path.join(os.path.dirname(__file__), "..", "static", "output")
 
     try:
@@ -30,14 +29,14 @@ def decide():
             return Response(response=json.dumps(body), status=500)
     except Exception as e:
         logging.error(
-            f"submitファイルのファイル操作で予期せぬエラーが発生しました。: {e}",
+            f"${submit_file_name}ファイルのファイル操作で予期せぬエラーが発生しました。: {e}",
             stack_info=True,
         )
         return Response(
             response=json.dumps(
                 {
                     "code": "E02_005",
-                    "message": "submitファイルのファイル操作で予期せぬエラーが発生しました。",
+                    "message": f"${submit_file_name}ファイルのファイル操作で予期せぬエラーが発生しました。",
                 }
             ),
             status=500,
