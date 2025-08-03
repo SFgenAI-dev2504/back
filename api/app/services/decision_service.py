@@ -12,10 +12,9 @@ class DecisionService:
         submit_file_path = os.path.join(save_path, self.file_name)
 
         try:
+            # 同じ画像IDが書き込まれている場合はエラーを返す
             if os.path.exists(submit_file_path):
-                # 同じimage_idが書き込まれている場合はエラーを返す
                 with open(submit_file_path, "r", encoding="utf-8") as f:
-                    logging.info(self.image_id)
                     for line in f:
                         if self.image_id in line:
                             logging.error(
