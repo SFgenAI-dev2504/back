@@ -12,23 +12,20 @@ class DecisionService:
         submit_file_path = os.path.join(save_path, self.file_name)
 
         try:
-            # 同じimage_idが書き込まれている場合はエラーを返す
-            with open(submit_file_path, "a", encoding="utf-8") as f:
-                logging.info("self.image_id")
-                logging.info(self.image_id)
-                for line in f:
-                    if self.image_id in line:
-                        logging.info(line)
-                        logging.info(self.image_id in line)
-
-                        logging.error(
-                            f"{self.file_name}ファイルに重複した画像IDが存在します。(画像ID:${self.image_id})",
-                            stack_info=True,
-                        )
-                        return {
-                            "code": "E02_006",
-                            "message": f"{self.file_name}ファイルに重複した画像IDが存在します。(画像ID:${self.image_id})",
-                        }
+            if os.path.exists(submit_file_path):
+                # 同じimage_idが書き込まれている場合はエラーを返す
+                with open(submit_file_path, "r", encoding="utf-8") as f:
+                    logging.info(self.image_id)
+                    for line in f:
+                        if self.image_id in line:
+                            logging.error(
+                                f"{self.file_name}ファイルに重複した画像IDが存在します。",
+                                stack_info=True,
+                            )
+                            return {
+                                "code": "E02_006",
+                                "message": f"{self.file_name}ファイルに重複した画像IDが存在します。",
+                            }
 
             # ファイル書き込み(新規作成 or 追記)
             with open(submit_file_path, "a", encoding="utf-8") as f:
