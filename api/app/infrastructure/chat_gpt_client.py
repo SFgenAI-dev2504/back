@@ -14,13 +14,15 @@ class ChatGPTClient:
     def __build_chain(self):
         system_prompt = """\
             あなたはAIに関する経験が豊富な、優秀なプロンプトエンジニアです。 \
-            以下の「プロンプト作成のルール」に従って、DALL-E3に効果的な指示を与えるためのプロンプトを考えてください。
+            以下の「プロンプト作成のルール」に従って、\
+            DALL-E3に効果的な指示を与えるためのプロンプトを考えてください。
             
             ***プロンプト作成のルール***
             具体的で明確な表現をすること
             ユーザーの入力に基づいて、繊細で想像力豊かな画像を作成すること
             ビジュアルが鮮明になるよう色・形・動き・状況などを具体的に記述すること
             指示された内容自体は含まないこと
+            \
             """
         prompt = ChatPromptTemplate.from_messages(
             [("system", system_prompt), ("human", "{input}")]
@@ -30,12 +32,15 @@ class ChatGPTClient:
 
     def ask_ai_image_prompt(self):
         prompt = self.prompt_builder.build_ai_image_prompt()
-        self.__ask(prompt)
+        return self.__ask(prompt)
 
     def ask_description_prompt(self):
         prompt = self.prompt_builder.build_description_prompt()
-        self.__ask(prompt)
+        suffix = "\n※記載されている内容は創作に基づくものであり、実在の天体に関する科学的根拠は伴いません。"
+        return self.__ask(prompt) + suffix
 
     def __ask(self, prompt):
-        logging.info(prompt)
-        return self.chain.invoke({"input": prompt})
+        logging.info("プロンプト: " + prompt)
+        answer = self.chain.invoke({"input": prompt})
+        logging.info("回答: " + answer)
+        return answer

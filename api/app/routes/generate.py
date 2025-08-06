@@ -25,14 +25,6 @@ def generate():
     levels = card_generator.prompt_items_level
     logging.info(levels)
 
-    # プロンプトの生成
-    prompt_builder = PromptBuilder(req.get("planetName"), levels)
-    chat_gpt_client = ChatGPTClient(
-        current_app.config.get("OPENAI_API_KEY"), prompt_builder
-    )
-    answer_ai_image_prompt = chat_gpt_client.ask_ai_image_prompt()
-    answer_description_prompt = chat_gpt_client.ask_description_prompt()
-
     # 画像ID=アウトプットのベースディレクトリの作成(yyyymmddhhmmss_xxxx)
     jst_time = datetime.now(ZoneInfo("Asia/Tokyo"))
     timestamp = jst_time.strftime("%Y%m%d%H%M%S")
@@ -42,8 +34,15 @@ def generate():
     )
     os.makedirs(save_path, exist_ok=True)
 
-    # OpenAIによる画像の生成
     try:
+        # プロンプトの生成
+        prompt_builder = PromptBuilder(req.get("planetName"), levels)
+        chat_gpt_client = ChatGPTClient(
+            current_app.config.get("OPENAI_API_KEY"), prompt_builder
+        )
+        answer_ai_image_prompt = chat_gpt_client.ask_ai_image_prompt()
+
+        # OpenAIによる画像の生成
         body = card_generator.generate(answer_ai_image_prompt, save_path, image_id)
         logging.info(body)
         image_file_name = body.get("imageFileName")
@@ -58,7 +57,7 @@ def generate():
                             output_static_base_path, image_id, image_file_name
                         ),
                         "imageId": image_id,
-                        "explanation": answer_description_prompt,
+                        "explanation": chat_gpt_client.ask_description_prompt(),
                         "rate": 1,
                         "code": None,
                         "message": None,
