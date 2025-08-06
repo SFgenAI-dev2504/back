@@ -1,4 +1,4 @@
-from app.services.card_generator_service import CardGeneratorService
+from app.services.card_generator import CardGenerator
 
 
 def test_calc_level_1_min():
@@ -15,10 +15,10 @@ def test_calc_level_1_min():
         "volcano": 0,
         "aurora": 0,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 1
@@ -46,10 +46,10 @@ def test_calc_level_1_max():
         "volcano": 10,
         "aurora": 10,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 1
@@ -77,10 +77,10 @@ def test_calc_level_2_min():
         "volcano": 11,
         "aurora": 11,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 2
@@ -108,10 +108,10 @@ def test_calc_level_2_max():
         "volcano": 20,
         "aurora": 20,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 2
@@ -139,10 +139,10 @@ def test_calc_level_3_min():
         "volcano": 21,
         "aurora": 21,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 3
@@ -170,10 +170,10 @@ def test_calc_level_3_max():
         "volcano": 30,
         "aurora": 30,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 3
@@ -201,10 +201,10 @@ def test_calc_level_4_min():
         "volcano": 31,
         "aurora": 31,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 4
@@ -232,10 +232,10 @@ def test_calc_level_4_max():
         "volcano": 40,
         "aurora": 40,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 4
@@ -263,10 +263,10 @@ def test_calc_level_5_min():
         "volcano": 41,
         "aurora": 41,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 5
@@ -294,10 +294,10 @@ def test_calc_level_5_max():
         "volcano": 50,
         "aurora": 50,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 5
@@ -325,10 +325,10 @@ def test_calc_level_6_min():
         "volcano": 51,
         "aurora": 51,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 6
@@ -356,10 +356,10 @@ def test_calc_level_6_max():
         "volcano": 60,
         "aurora": 60,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 6
@@ -387,10 +387,10 @@ def test_calc_level_7_min():
         "volcano": 61,
         "aurora": 61,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 7
@@ -418,10 +418,10 @@ def test_calc_level_7_max():
         "volcano": 70,
         "aurora": 70,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 7
@@ -449,10 +449,10 @@ def test_calc_level_8_min():
         "volcano": 71,
         "aurora": 71,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 8
@@ -480,10 +480,10 @@ def test_calc_level_8_max():
         "volcano": 80,
         "aurora": 80,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 8
@@ -511,10 +511,10 @@ def test_calc_level_9_min():
         "volcano": 81,
         "aurora": 81,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 9
@@ -542,10 +542,10 @@ def test_calc_level_9_max():
         "volcano": 90,
         "aurora": 90,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 9
@@ -573,10 +573,10 @@ def test_calc_level_10_min():
         "volcano": 91,
         "aurora": 91,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 10
@@ -604,10 +604,10 @@ def test_calc_level_10_max():
         "volcano": 100,
         "aurora": 100,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level == 10
@@ -635,10 +635,10 @@ def test_calc_level_1_under():
         "volcano": -1,
         "aurora": -1,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level is None
@@ -666,10 +666,10 @@ def test_calc_level_10_over():
         "volcano": 101,
         "aurora": 101,
     }
-    promptCreatorService = CardGeneratorService(request)
+    card_generator = CardGenerator(request)
 
     # Test.
-    result = promptCreatorService.calc_level()
+    result = card_generator.calc_level()
 
     # Check.
     assert result.diameter_level is None

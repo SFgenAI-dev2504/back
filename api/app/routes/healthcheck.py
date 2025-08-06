@@ -1,10 +1,6 @@
 import json
-import logging
-import os
 
-from flask import Blueprint, Response, current_app, request
-
-from app.services.decision_service import DecisionService
+from flask import Blueprint, Response
 
 health_check_bp = Blueprint("healthcheck", __name__)
 

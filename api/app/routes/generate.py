@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from flask import Blueprint, Response, current_app, request
 
 from app.infrastructure.chat_gpt_client import ChatGPTClient
-from app.services.card_generator_service import CardGeneratorService
+from app.services.card_generator import CardGenerator
 from app.services.prompt_builder import PromptBuilder
 
 generate_bp = Blueprint("generate", __name__)
@@ -21,17 +21,17 @@ def generate():
     logging.info("リクエスト: " + json.dumps(req, ensure_ascii=False))
 
     # リクエスト値からレベルの計算
-    cardGeneratorService = CardGeneratorService(req)
-    levels = cardGeneratorService.prompt_items_level
+    card_generator = CardGenerator(req)
+    levels = card_generator.prompt_items_level
     logging.info(levels)
 
     # プロンプトの生成
-    promptBuilder = PromptBuilder(req.get("planetName"), levels)
-    chatGPTClient = ChatGPTClient(
-        current_app.config.get("OPENAI_API_KEY"), promptBuilder
+    prompt_builder = PromptBuilder(req.get("planetName"), levels)
+    chat_gpt_client = ChatGPTClient(
+        current_app.config.get("OPENAI_API_KEY"), prompt_builder
     )
-    answer_ai_image_prompt = chatGPTClient.ask_ai_image_prompt()
-    answer_description_prompt = chatGPTClient.ask_description_prompt()
+    answer_ai_image_prompt = chat_gpt_client.ask_ai_image_prompt()
+    answer_description_prompt = chat_gpt_client.ask_description_prompt()
 
     # 画像ID=アウトプットのベースディレクトリの作成(yyyymmddhhmmss_xxxx)
     jst_time = datetime.now(ZoneInfo("Asia/Tokyo"))
@@ -44,9 +44,7 @@ def generate():
 
     # OpenAIによる画像の生成
     try:
-        body = cardGeneratorService.generate(
-            answer_ai_image_prompt, save_path, image_id
-        )
+        body = card_generator.generate(answer_ai_image_prompt, save_path, image_id)
         logging.info(body)
         image_file_name = body.get("imageFileName")
 
