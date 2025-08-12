@@ -7,8 +7,9 @@ from zoneinfo import ZoneInfo
 
 from flask import Blueprint, Response, current_app, request
 
-from app.services.card_generator_service import CardGeneratorService
-from app.services.prompt_creator_service import PromptCreatorService
+from app.infrastructure.chat_gpt_client import ChatGPTClient
+from app.services.card_generator import CardGenerator
+from app.services.prompt_builder import PromptBuilder
 
 generate_bp = Blueprint("generate", __name__)
 
@@ -19,13 +20,10 @@ def generate():
     req = request.get_json()
     logging.info("リクエスト: " + json.dumps(req, ensure_ascii=False))
 
-    cardGeneratorService = CardGeneratorService(req)
-    logging.info(cardGeneratorService.prompt_items_level)
-
-    promptCreatorService = PromptCreatorService(cardGeneratorService.prompt_items_level)
-
-    # プロンプトの生成
-    prompt = promptCreatorService.create(current_app.config.get("OPENAI_API_KEY"))
+    # リクエスト値からレベルの計算
+    card_generator = CardGenerator(req)
+    levels = card_generator.prompt_items_level
+    logging.info(levels)
 
     # 画像ID=アウトプットのベースディレクトリの作成(yyyymmddhhmmss_xxxx)
     jst_time = datetime.now(ZoneInfo("Asia/Tokyo"))
@@ -36,23 +34,30 @@ def generate():
     )
     os.makedirs(save_path, exist_ok=True)
 
-    # OpenAIによる画像の生成
     try:
-        body = cardGeneratorService.generate(prompt, save_path, image_id)
+        # プロンプトの生成
+        prompt_builder = PromptBuilder(req.get("planetName"), levels)
+        chat_gpt_client = ChatGPTClient(
+            current_app.config.get("OPENAI_API_KEY"), prompt_builder
+        )
+        answer_ai_image_prompt = chat_gpt_client.ask_ai_image_prompt()
+
+        # OpenAIによる画像の生成
+        body = card_generator.generate(answer_ai_image_prompt, save_path, image_id)
         logging.info(body)
         image_file_name = body.get("imageFileName")
 
         if body.get("code") is None and body.get("message") is None:
             output_static_base_path = current_app.config.get("SERVER_IMAGE_PATH")
-            imageUrl = os.path.join(output_static_base_path, image_id, image_file_name)
-            explanation = "バックエンドテキストバックエンドテキストバックエンドテキストエンドテキストバックエンドテキストバックエンドテキスト"
             return Response(
                 response=json.dumps(
                     {
                         "imageFileName": image_file_name,
-                        "imageUrl": imageUrl,
+                        "imageUrl": os.path.join(
+                            output_static_base_path, image_id, image_file_name
+                        ),
                         "imageId": image_id,
-                        "explanation": explanation,
+                        "explanation": chat_gpt_client.ask_description_prompt(),
                         "rate": 1,
                         "code": None,
                         "message": None,
@@ -62,7 +67,6 @@ def generate():
             )
         else:
             return Response(response=json.dumps(body), status=500)
-
     except Exception as e:
         logging.error(f"画像生成で予期せぬエラーが発生しました。: {e}", stack_info=True)
         return Response(

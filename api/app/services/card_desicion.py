@@ -2,7 +2,7 @@ import logging
 import os
 
 
-class DecisionService:
+class CardDecision:
     def __init__(self, image_id, file_name):
         self.image_id = image_id
         self.file_name = file_name

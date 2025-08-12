@@ -11,7 +11,7 @@ from app.models.prompt_items import PromptItems
 from app.models.prompt_levels import PromptLevels
 
 
-class CardGeneratorService:
+class CardGenerator:
     def __init__(self, request):
         self.planet_name = request.get("planetName")
         self.prompt_items = PromptItems(

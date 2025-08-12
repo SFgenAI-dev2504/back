@@ -4,7 +4,7 @@ import os
 
 from flask import Blueprint, Response, current_app, request
 
-from app.services.decision_service import DecisionService
+from app.services.card_desicion import CardDecision
 
 decide_bp = Blueprint("decide", __name__)
 
@@ -17,12 +17,12 @@ def decide():
     logging.info("リクエスト: " + json.dumps(req, ensure_ascii=False))
 
     submit_file_name = current_app.config.get("SERVER_SUBMIT_FILE_NAME")
-    decision_service = DecisionService(image_id, submit_file_name)
+    card_decision = CardDecision(image_id, submit_file_name)
     save_path = os.path.join(os.path.dirname(__file__), "..", "static", "output")
 
     try:
         # submitファイルの作成
-        body = decision_service.decide(save_path)
+        body = card_decision.decide(save_path)
         if body.get("code") is None and body.get("message") is None:
             return Response(response=json.dumps(body), status=200)
         else:
