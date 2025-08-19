@@ -1,5 +1,6 @@
 import logging
 import os
+from logging.handlers import RotatingFileHandler
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -37,5 +38,31 @@ def create_app():
 
     # ログの設定
     logging.basicConfig(level=logging.DEBUG)
+
+    # ログディレクトリを作成
+    if not os.path.exists("logs"):
+        os.mkdir("logs")
+
+    # ローテーションするログハンドラを設定
+    file_handler = RotatingFileHandler(
+        "logs/app.log", maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+
+    # ログのフォーマット
+    formatter = logging.Formatter(
+        "[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    file_handler.setFormatter(formatter)
+
+    # Flaskのloggerに追加
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.DEBUG)
+
+    # ルートloggerにも合わせて追加
+    root_logger = logging.getLogger()
+    root_logger.addHandler(file_handler)
+    root_logger.setLevel(logging.DEBUG)
 
     return app
